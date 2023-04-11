@@ -3,8 +3,8 @@ import java.io.*;
 import java.util.*;
 
 public class UserDatabase {
-    private List<Worker> users;
-    private String filename;
+    private final List<Worker> users;
+    private final String filename;
 
     public UserDatabase(String filename) {
         this.filename = filename;
@@ -15,8 +15,16 @@ public class UserDatabase {
         return users;
     }
 
-    public void readUsersFromFile() throws FileNotFoundException {
+    private void readUsersFromFile() throws FileNotFoundException {
         File file = new File(filename);
+        if(!file.exists()){
+            try {
+                FileWriter writer = new FileWriter(filename);
+                writer.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
         Scanner scanner = new Scanner(file);
 
         while (scanner.hasNextLine()) {
@@ -33,24 +41,29 @@ public class UserDatabase {
         }
         scanner.close();
     }
-
-    public void writeUsersToFile() throws IOException {
+    private void writeUsersToFile() throws IOException {
         FileWriter writer = new FileWriter(filename);
-        for (User user : users) {
+        for (Worker user : users) {
             String line;
-            if (user instanceof Worker) {
-                Worker worker = (Worker) user;
-                line = String.format("%d,%s,%s,%s\n", worker.getIdCard(), worker.getName(), worker.getUserType(), worker.getPassword());
-            } else {
-                line = String.format("%d,%s,%s\n", user.getIdCard(), user.getName(), user.getUserType());
-            }
+            line = String.format("%d,%s,%s,%s\n", user.getIdCard(), user.getName(), user.getUserType(), user.getPassword());
             writer.write(line);
         }
         writer.close();
     }
-
+    public void updateFile(){
+        try {
+            this.readUsersFromFile();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        try {
+            this.writeUsersToFile();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
     public void addUser(Worker user) {
-        if (exists(this.filename , user.getName(),user.getIdCard())){
+        if (existsUser(user)){
             System.out.println("ERROR!!!");
             System.out.println("El user:"+ user.getName()+" o el id:"+ user.getIdCard() + " ya exixte.\nen el archivo: "+this.filename);
             System.out.println("No guardare los datos.");
@@ -59,28 +72,24 @@ public class UserDatabase {
         }
 
     }
-
     public void removeUser(Worker user) {
-        users.remove(user);
-    }
-
-    public Worker getUserByIdCard(int idCard) {
-        for (Worker user : users) {
-            if (user.getIdCard() == idCard) {
-                return user;
-            }
+        if (!existsUser(user)){
+            System.out.println("ERROR!!!");
+            System.out.println("El user:"+ user.getName()+" o el id:"+ user.getIdCard() + " no exixte.\nen el archivo: "+this.filename);
+        } else {
+            users.remove(user);
         }
-        return null;
-    }
 
-    public static boolean exists(String fileName, String userName, int idCard) {
+    }
+    public boolean existsUser(Worker user) {
+        this.updateFile();
         boolean userExists = false;
-        try (Scanner scanner = new Scanner(new File(fileName))) {
+        try (Scanner scanner = new Scanner(new File(this.filename))) {
             while (scanner.hasNextLine()) {
                 String[] fields = scanner.nextLine().split(",");
                 int idCardFromFile = Integer.parseInt(fields[0]);
                 String nameFromFile = fields[1];
-                if (idCardFromFile == idCard || nameFromFile.equals(userName)) {
+                if (idCardFromFile == user.getIdCard() || nameFromFile.equals(user.getName())) {
                     userExists = true;
                     break;
                 }
