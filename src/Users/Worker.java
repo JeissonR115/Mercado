@@ -8,7 +8,7 @@ public class Worker extends User {
     private final String password;
     private double sueldo;
 
-    public Worker(int idCard, String name, String userType, String password){
+    public Worker(String idCard, String name, String userType, String password){
         super(idCard,name,userType);
         this.password = password;
     }
