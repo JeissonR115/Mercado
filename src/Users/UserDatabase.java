@@ -33,11 +33,8 @@ public class UserDatabase {
             String name = fields[1];
             String userType = fields[2];
             String password = fields[3];
-            if (userType.equals("cajero")) {
-                users.add(new Worker(idCard, name, userType, password));
-            } else {
-                users.add(new Worker(idCard, name, userType, password));
-            }
+            Worker newWorker = new Worker(idCard, name, userType, password);
+            if(!existsUser(users,newWorker)){users.add(newWorker);}
         }
         scanner.close();
     }
@@ -63,40 +60,33 @@ public class UserDatabase {
         }
     }
     public void addUser(Worker user) {
-        if (existsUser(user)){
+        if (existsUser(users, user)){
             System.out.println("ERROR!!!");
             System.out.println("El user:"+ user.getName()+" o el id:"+ user.getIdCard() + " ya exixte.\nen el archivo: "+this.filename);
             System.out.println("No guardare los datos.");
         } else {
             users.add(user);
+            updateFile();
         }
 
     }
     public void removeUser(Worker user) {
-        if (!existsUser(user)){
+        if (!existsUser(users   , user)){
             System.out.println("ERROR!!!");
             System.out.println("El user:"+ user.getName()+" o el id:"+ user.getIdCard() + " no exixte.\nen el archivo: "+this.filename);
         } else {
             users.remove(user);
+            updateFile();
         }
 
     }
-    public boolean existsUser(Worker user) {
-        this.updateFile();
+    public boolean existsUser(List<Worker> userList, Worker user) {
         boolean userExists = false;
-        try (Scanner scanner = new Scanner(new File(this.filename))) {
-            while (scanner.hasNextLine()) {
-                String[] fields = scanner.nextLine().split(",");
-                int idCardFromFile = Integer.parseInt(fields[0]);
-                String nameFromFile = fields[1];
-                if (idCardFromFile == user.getIdCard() || nameFromFile.equals(user.getName())) {
-                    userExists = true;
-                    break;
-                }
+        for (Worker worker : userList) {
+            if (worker.getIdCard() == user.getIdCard() || worker.getName().equals(user.getName())) {
+                userExists = true;
+                break;
             }
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: el archivo no existe");
-            e.printStackTrace();
         }
         return userExists;
     }
