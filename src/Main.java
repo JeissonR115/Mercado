@@ -10,19 +10,22 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
 
         UserDatabase userDb = new UserDatabase("user1.txt");
-        List<Worker> listUsers = userDb.getUsers();
 
-        try {
-            userDb.readUsersFromFile();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println(listUsers.size());
+        Worker Juan = new Worker(0,"juan","admin","123");
+        userDb.addUser(Juan);
         try {
             userDb.writeUsersToFile();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+        try {
+            userDb.readUsersFromFile();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        List<Worker> listUsers = userDb.getUsers();
+        System.out.println(listUsers.size());
+
         verifyCredentials(listUsers);
         System.out.println(listUsers.size());
 
