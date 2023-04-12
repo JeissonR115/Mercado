@@ -20,7 +20,7 @@ public class UIMenu {
             switch (response) {
                 case 1 -> showClientMenu();
                 case 2 -> {
-                    UserDatabase userDb = new UserDatabase("user1.txt");
+                    UserDatabase userDb = new UserDatabase("./src/data/listUsers.txt");
                     List<Worker> listUsers = userDb.getUsers();
                     userDb.updateFile();
                     if (verifyCredentials(listUsers)) {
@@ -38,17 +38,17 @@ public class UIMenu {
         int response;
         do {
             System.out.println("\n\n");
-            System.out.println("Patient");
-            System.out.println("1. Book an appointment");
-            System.out.println("2. My appointments");
+            System.out.println("Cliente");
+            System.out.println("1. carrito");
+            System.out.println("2. pagar");
             System.out.println("0. Return");
 
             Scanner sc = new Scanner(System.in);
             response = Integer.parseInt(sc.nextLine());
 
             switch (response) {
-                case 1 -> System.out.println("::Book an appointment");
-                case 2 -> System.out.println("::My appointments");
+                case 1 -> System.out.println("shoppingCart()");
+                case 2 -> System.out.println("pay()");
                 case 0 -> showMenu();
             }
         }while (response != 0);
