@@ -7,9 +7,9 @@ public class UserDatabase {
     private final String filename;
     public UserDatabase(String filename) {
         this.filename = filename;
-        this.users = new ArrayList<>();
+        users = new ArrayList<>();
     }
-    public List<Worker> getUsers() {
+    public  List<Worker> getUsers() {
         return users;
     }
     private void readUsersFromFile() throws FileNotFoundException {

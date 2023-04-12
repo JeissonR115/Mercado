@@ -6,6 +6,7 @@ import Users.Worker;
 import java.util.*;
 public  class Login {
     private String userType ;
+    private static Worker user= null;
     public Login() {
     }
     public static boolean verifyCredentials(List<Worker> listUsers) {
@@ -13,7 +14,6 @@ public  class Login {
         boolean longinStaus = false ,userFound = false;
         int numberOfAttempts = 3;
         String userNameEntered,passwordEntered;
-        Worker user = null;
 
         while (!userFound){
             System.out.println("si quieres salir escribe \"exit\"");
@@ -49,4 +49,5 @@ public  class Login {
 
         return longinStaus;
     }
+    public static Worker getUser(){return user;}
 }

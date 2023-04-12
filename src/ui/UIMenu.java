@@ -1,42 +1,41 @@
 package ui;
-
-import java.util.Scanner;
+import Users.*;
+import java.util.*;
+import static other.Login.*;
 
 public class UIMenu {
 
     public static void showMenu(){
         System.out.println("Bienbeniso a Supermercado Ingenieros");
         System.out.println("Quien eres?");
-
-        int response = 0;
+        int response;
         do {
             System.out.println("1. Cliente");
-            System.out.println("2. Empleado");
+            System.out.println("2. Trabajador");
             System.out.println("0. Salir");
 
             Scanner sc = new Scanner(System.in);
-            response = Integer.valueOf(sc.nextLine());
+            response = Integer.parseInt(sc.nextLine());
 
-            switch (response){
-                case 1:
-                    System.out.println("Doctor");
-                    break;
-                case 2:
-                    response = 0;
-                    showPatientMenu();
-
-                    break;
-                case 0:
-                    System.out.println("Gracias por la visita");
-                    break;
-                default:
-                    System.out.println("Porfavor selecione la respuesta correcta");
+            switch (response) {
+                case 1 -> showClientMenu();
+                case 2 -> {
+                    UserDatabase userDb = new UserDatabase("user1.txt");
+                    List<Worker> listUsers = userDb.getUsers();
+                    userDb.updateFile();
+                    if (verifyCredentials(listUsers)) {
+                        showMenuWorker(getUser());
+                    } else {
+                        System.out.println("Adios :)");
+                    }
+                }
+                case 0 -> System.out.println("Gracias por la visita");
+                default -> System.out.println("Porfavor selecione la respuesta correcta");
             }
         }while (response != 0);
     }
-
-    static void showPatientMenu(){
-        int response = 0;
+    static void showClientMenu(){
+        int response;
         do {
             System.out.println("\n\n");
             System.out.println("Patient");
@@ -45,41 +44,28 @@ public class UIMenu {
             System.out.println("0. Return");
 
             Scanner sc = new Scanner(System.in);
-            response = Integer.valueOf(sc.nextLine());
+            response = Integer.parseInt(sc.nextLine());
 
-            switch (response){
-                case 1:
-                    System.out.println("::Book an appointment");
-                    break;
-                case 2:
-                    System.out.println("::My appointments");
-                    break;
-                case 0:
-                    showMenu();
-                    break;
+            switch (response) {
+                case 1 -> System.out.println("::Book an appointment");
+                case 2 -> System.out.println("::My appointments");
+                case 0 -> showMenu();
             }
         }while (response != 0);
     }
-
-    public static void showMenuWorker(){
-        int response=0;
-        System.out.println("\n\n");
-        System.out.println("Patient");
-        System.out.println("1. Book an appointment");
-        System.out.println("2. My appointments");
-        System.out.println("0. Return");
-        do {
-            switch (response){
-                case 1:
-                    System.out.println("::Book an appointment");
-                    break;
-                case 2:
-                    System.out.println("::My appointments");
-                    break;
-                case 0:
-                    showMenu();
-                    break;
+    static void showMenuWorker(Worker user){
+        System.out.println("\n");
+        switch (user.getUserType()) {
+            case "admin" -> System.out.println("showMenuAdmin\n");
+            case "cashier" -> System.out.println("showMenuCashier\n");
+            default -> {
+                System.out.println("no he podido encontrar \"" + user.getUserType() + "\" como tipo de usuario.");
+                System.out.println("los tipos de usuariios son :");
+                System.out.println("\t* client(no nesesita registro)\n\t* cashier\n\t* admin");
+                System.out.println();
             }
-        } while (response != 0);
-    };
+        }
+
+    }
+
 }
