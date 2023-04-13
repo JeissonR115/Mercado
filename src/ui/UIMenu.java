@@ -67,5 +67,6 @@ public class UIMenu {
         }
 
     }
-
+    private void showMenuAdmin(){}
+    private void showMenuCashier(){}
 }
