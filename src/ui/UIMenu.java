@@ -1,72 +1,105 @@
 package ui;
+import ShoppingCart.*;
 import Users.*;
 import java.util.*;
-import static other.Login.*;
+import static other.Login.getUser;
+import static other.Login.verifyCredentials;
 
 public class UIMenu {
+    static void runMenuWithOptions(List<String> options, List<Runnable> actions, String textReturn) {
+        int numOptions = options.size();
+        if (numOptions != actions.size()) {
+            System.out.println("Error: Los arreglos de opciones y acciones no tienen la misma longitud");
+            return;
+        }
 
-    public static void showMenu(){
-        System.out.println("Bienbeniso a Supermercado Ingenieros");
-        System.out.println("Quien eres?");
-        int response;
-        do {
-            System.out.println("1. Cliente");
-            System.out.println("2. Trabajador");
-            System.out.println("0. Salir");
+        boolean running = true;
+        while (running) {
+            System.out.println();
+            for (int i = 0; i < numOptions; i++) {
+                System.out.println((i + 1) + ". " + options.get(i));
+            }
+            System.out.println("0. " + textReturn);
 
             Scanner sc = new Scanner(System.in);
-            response = Integer.parseInt(sc.nextLine());
+            String input = sc.nextLine();
 
-            switch (response) {
-                case 1 -> showClientMenu();
-                case 2 -> {
-                    UserDatabase userDb = new UserDatabase("./src/data/listUsers.txt");
-                    List<Worker> listUsers = userDb.getUsers();
-                    userDb.updateFile();
-                    if (verifyCredentials(listUsers)) {
-                        showMenuWorker(getUser());
-                    } else {
-                        System.out.println("Adios :)");
-                    }
+            try {
+                int response = Integer.parseInt(input)-1;
+                if (response+1 == 0) {
+                    running = false;
+                } else if (response < 0 || response  >= numOptions) {
+                    System.out.println("Por favor seleccione una opción válida");
+                } else {
+                    actions.get(response).run();
                 }
-                case 0 -> System.out.println("Gracias por la visita");
-                default -> System.out.println("Porfavor selecione la respuesta correcta");
+            } catch (NumberFormatException e) {
+                if (input.equals("x") || input.equals("X") || input.equals("exit")){
+                    running = false;
+                } else {
+                    System.out.println("Error: La entrada no es válida. Ingrese solo números.");
+                }
             }
-        }while (response != 0);
+        }
+    }
+
+    public static void showMenu() {
+        System.out.println("Bienvenido a Supermercado Ingenieros");
+        System.out.println("¿Quién eres?");
+
+        List<String> mainMenuOptions = Arrays.asList("Cliente", "Trabajador");
+        List<Runnable> mainMenuActions = Arrays.asList(
+                UIMenu::showClientMenu,
+                UIMenu::showWorkerMenu
+        );
+        runMenuWithOptions(mainMenuOptions, mainMenuActions, "(X) Salir de la App");
     }
     static void showClientMenu(){
-        int response;
-        do {
-            System.out.println("\n\n");
-            System.out.println("Cliente");
-            System.out.println("1. carrito");
-            System.out.println("2. pagar");
-            System.out.println("0. Return");
-
-            Scanner sc = new Scanner(System.in);
-            response = Integer.parseInt(sc.nextLine());
-
-            switch (response) {
-                case 1 -> System.out.println("shoppingCart()");
-                case 2 -> System.out.println("pay()");
-                case 0 -> showMenu();
-            }
-        }while (response != 0);
+        ShoppingCart shoppingCart = new ShoppingCart();
+        UIShoppingCart uiShoppingCart = new UIShoppingCart(shoppingCart);
+        List<String> options = Arrays.asList("carrito", "pagar");
+        List<Runnable> actions = Arrays.asList(
+                () -> uiShoppingCart.mainMenu(),
+                () -> System.out.println("UIpay()")
+        );
+        runMenuWithOptions(options, actions,"(X) Salir del Menu");
     }
-    static void showMenuWorker(Worker user){
+    static void showWorkerMenu(){
+        UserDatabase userDb = new UserDatabase("./src/data/listUsers.txt");
+        List<Worker> listUsers = userDb.getUsers();
+        userDb.updateFile();
         System.out.println("\n");
-        switch (user.getUserType()) {
-            case "admin" -> System.out.println("showMenuAdmin\n");
-            case "cashier" -> System.out.println("showMenuCashier\n");
-            default -> {
-                System.out.println("no he podido encontrar \"" + user.getUserType() + "\" como tipo de usuario.");
-                System.out.println("los tipos de usuariios son :");
-                System.out.println("\t* client(no nesesita registro)\n\t* cashier\n\t* admin");
-                System.out.println();
+        if (verifyCredentials(listUsers)){
+            Worker user = getUser();
+            switch (user.getUserType()) {
+                case "admin" -> showAdminMenu();
+                case "cashier" -> showCashierMenu();
+                default -> {
+                    System.out.println("no he podido encontrar \"" + user.getUserType() + "\" como tipo de usuario.");
+                    System.out.println("los tipos de usuariios son :");
+                    System.out.println("\t* client(no nesesita registro)\n\t* cashier\n\t* admin");
+                    System.out.println();
+                }
             }
         }
 
     }
-    private void showMenuAdmin(){}
-    private void showMenuCashier(){}
+    static void showAdminMenu(){
+
+        List<String> options = Arrays.asList("Bodega", "Empleados");
+        List<Runnable> actions = Arrays.asList(
+                () -> System.out.println("UIStore()"),
+                () -> System.out.println("UIWorkers()")
+        );
+        runMenuWithOptions(options, actions,"(X) Salir del Menu");
+    }
+    static void showCashierMenu(){
+        List<String> options = Arrays.asList("Registrar productos","Remover Productos","cobrar");
+        List<Runnable> actions = Arrays.asList(
+                () -> System.out.println("Registrar productos"),
+                () -> System.out.println("Remover Productos"),
+                () -> System.out.println("cobrar")
+        );
+        runMenuWithOptions(options, actions,"(X) Salir del Menu");
+    }
 }

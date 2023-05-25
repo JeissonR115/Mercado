@@ -1,109 +1,91 @@
 package Users;
+
 import java.io.*;
 import java.util.*;
 
 public class UserDatabase {
     private final List<Worker> users;
     private final String filename;
+
     public UserDatabase(String filename) {
         this.filename = filename;
         users = new ArrayList<>();
+        readUsersFromFile();
     }
-    public  List<Worker> getUsers() {
+
+    public List<Worker> getUsers() {
         return users;
     }
-    private void readUsersFromFile() throws FileNotFoundException {
-        File file = new File(filename);
-        if(!file.exists()){
-            try {
-                FileWriter writer = new FileWriter(filename);
-                writer.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        Scanner scanner = new Scanner(file);
 
-        while (scanner.hasNextLine()) {
-            String[] fields = scanner.nextLine().split(",");
-            String idCard = fields[0];
-            String name = fields[1];
-            String userType = fields[2];
-            String password = fields[3];
-            Worker newWorker = new Worker(idCard, name, userType, password);
-            if(!existsUser(users,newWorker)){users.add(newWorker);}
-        }
-        scanner.close();
-    }
-    private void writeUsersToFile() throws IOException {
-        FileWriter writer = new FileWriter(filename);
-        for (Worker user : users) {
-            String line;
-            line = String.format("%s,%s,%s,%s\n", user.getIdCard(), user.getName(), user.getUserType(), user.getPassword());
-            writer.write(line);
-        }
-        writer.close();
-    }
-    public void updateFile(){
-        try {
-            this.readUsersFromFile();
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
-        }
-        try {
-            this.writeUsersToFile();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
     public void addUser(Worker user) {
-        if (existsUser(this.filename, user)){
+        if (existsUser(user)) {
             System.out.println("ERROR!!!");
-            System.out.println("El user:"+ user.getName()+" o el id:"+ user.getIdCard() + " ya exixte.\nen el archivo: "+this.filename);
-            System.out.println("No guardare los datos.");
+            System.out.println("El usuario con ID " + user.getIdCard() + " o nombre " + user.getName() + " ya existe en el archivo " + filename + ". No se guardarán los datos.");
         } else {
             users.add(user);
             updateFile();
         }
-
     }
+
     public void removeUser(Worker user) {
-        if (!existsUser(users   , user)){
+        if (!existsUser(user)) {
             System.out.println("ERROR!!!");
-            System.out.println("El user:"+ user.getName()+" o el id:"+ user.getIdCard() + " no exixte.\nen el archivo: "+this.filename);
+            System.out.println("El usuario con ID " + user.getIdCard() + " o nombre " + user.getName() + " no existe en el archivo " + filename + ".");
         } else {
             users.remove(user);
             updateFile();
         }
-
     }
-    public boolean existsUser(String fileName, Worker user) {
-        this.updateFile();
-        boolean userExists = false;
-        try (Scanner scanner = new Scanner(new File(fileName))) {
+
+    private void readUsersFromFile() {
+        File file = new File(filename);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String[] fields = scanner.nextLine().split(",");
-                String idCardFromFile =fields[0];
-                String nameFromFile = fields[1];
-                if (idCardFromFile.equals(user.getIdCard()) || nameFromFile.equals(user.getName())) {
-                    userExists = true;
-                    break;
+                String idCard = fields[0];
+                String name = fields[1];
+                String userType = fields[2];
+                String password = fields[3];
+                Worker newWorker = new Worker(idCard, name, userType, password);
+                if (!existsUser(newWorker)) {
+                    users.add(newWorker);
                 }
             }
         } catch (FileNotFoundException e) {
-            System.out.println("Error: el archivo no existe");
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
-        return userExists;
     }
-    public boolean existsUser(List<Worker> userList, Worker user) {
-        boolean userExists = false;
-        for (Worker worker : userList) {
-            if (worker.getIdCard().equals(user.getIdCard()) || worker.getName().equals(user.getName())) {
-                userExists = true;
-                break;
+
+    private void writeUsersToFile() {
+        try (FileWriter writer = new FileWriter(filename)) {
+            for (Worker user : users) {
+                String line = String.format("%s,%s,%s,%s\n", user.getIdCard(), user.getName(), user.getUserType(), user.getPassword());
+                writer.write(line);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void updateFile() {
+        writeUsersToFile();
+        readUsersFromFile();
+    }
+
+    private boolean existsUser(Worker user) {
+        for (Worker existingUser : users) {
+            if (existingUser.getIdCard().equals(user.getIdCard()) || existingUser.getName().equals(user.getName())) {
+                return true;
             }
         }
-        return userExists;
+        return false;
     }
 }
