@@ -50,11 +50,7 @@ public class UserDatabase {
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String[] fields = scanner.nextLine().split(",");
-                String idCard = fields[0];
-                String name = fields[1];
-                String userType = fields[2];
-                String password = fields[3];
-                Worker newWorker = new Worker(idCard, name, userType, password);
+                Worker newWorker = new Worker(fields[0], fields[1], fields[2], fields[3]);
                 if (!existsUser(newWorker)) {
                     users.add(newWorker);
                 }

@@ -45,7 +45,7 @@ public class UIMenu {
 
     public static void showMenu() {
         System.out.println("Bienvenido a Supermercado Ingenieros");
-        System.out.println("¿Quién eres?");
+        System.out.println("Quién eres?");
 
         List<String> mainMenuOptions = Arrays.asList("Cliente", "Trabajador");
         List<Runnable> mainMenuActions = Arrays.asList(
@@ -59,7 +59,7 @@ public class UIMenu {
         UIShoppingCart uiShoppingCart = new UIShoppingCart(shoppingCart);
         List<String> options = Arrays.asList("carrito", "pagar");
         List<Runnable> actions = Arrays.asList(
-                () -> uiShoppingCart.mainMenu(),
+                uiShoppingCart::mainMenu,
                 () -> System.out.println("UIpay()")
         );
         runMenuWithOptions(options, actions,"(X) Salir del Menu");

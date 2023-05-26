@@ -1,47 +1,87 @@
 package data;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Function;
 
 public class Database<T> {
     private final List<T> objects;
     private final String filename;
     private final Class<T> clazz;
-
     public Database(String filename, Class<T> clazz) {
         this.filename = filename;
         this.clazz = clazz;
         objects = new ArrayList<>();
     }
+    public static List<Field> getClassParameters(Class<?> clazz) {
+        List<Field> parameters = new ArrayList<>();
+        Field[] fields = clazz.getDeclaredFields();
+        Field[] fieldsSuper = clazz.getSuperclass().getDeclaredFields();
+
+        parameters.addAll(Arrays.asList(fieldsSuper));
+        parameters.addAll(Arrays.asList(fields));
+
+        return parameters;
+    }
+    public List<Object> getObjectAttributes(T object) {
+        Class<?> clazz = object.getClass();
+        Field[] fields = clazz.getDeclaredFields();
+        Field[] fieldsSuper = clazz.getSuperclass().getDeclaredFields();
+        List<Object> attributeValues = new ArrayList<>();
+
+        try {
+            for (Field fieldSuper : fieldsSuper) {
+            fieldSuper.setAccessible(true); // Permitir acceso a campos privados
+            Object value = fieldSuper.get(object); // Obtener el valor del atributo en el objeto
+            attributeValues.add(value);
+        }
+            for (Field field : fields) {
+                field.setAccessible(true); // Permitir acceso a campos privados
+                Object value = field.get(object); // Obtener el valor del atributo en el objeto
+                attributeValues.add(value);
+            }
+
+
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Error al acceder a los atributos del objeto", e);
+        }
+
+        return attributeValues;
+    }
 
     public List<T> getObjects() {
         return objects;
     }
+    public void addUser(T object) {
 
-    public void readObjectsFromFile() throws FileNotFoundException {
+        if (existsObject(object)) {
+            Class<?> objectClass = object.getClass();
+            System.out.println("ERROR!!!");
+            System.out.printf(objectClass.getName()+" ya existe en el archivo: \""+filename+"\"\n. No se guardarán los datos.");
+        } else {
+            objects.add(object);
+            //updateFile();
+        }
+    }
+    private void readObjectFromFile( Function<String[], Object> objectCreator) {
         File file = new File(filename);
-        if (!file.exists()) {
-            try {
-                FileWriter writer = new FileWriter(filename);
-                writer.close();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
+        try {
+            if (!file.exists()) {
+                file.createNewFile();
+                System.out.println("Se ha creado un nuevo archivo: " + file.getName());
             }
-        }
-        Scanner scanner = new Scanner(file);
 
-        while (scanner.hasNextLine()) {
-            String[] fields = scanner.nextLine().split(",");
-            try {
-                T newObject = clazz.getDeclaredConstructor(String[].class).newInstance((Object) fields);
-                if (!existsObject(objects, newObject)) {
-                    objects.add(newObject);
+            try (Scanner scanner = new Scanner(file)) {
+                while (scanner.hasNextLine()) {
+                    String[] fields = scanner.nextLine().split(",");
+                    Object newObj = objectCreator.apply(fields);
+                    objects.add((T) newObj);
                 }
-            } catch (Exception e) {
-                throw new RuntimeException(e);
             }
+        } catch (IOException e) {
+            throw new RuntimeException("Error al acceder al archivo: " + file.getName(), e);
         }
-        scanner.close();
     }
 
     public void writeObjectsToFile() throws IOException {
@@ -52,11 +92,9 @@ public class Database<T> {
         }
         writer.close();
     }
-
     public boolean existsObject(T object) {
         return existsObject(objects, object);
     }
-
     public boolean existsObject(List<T> objectList, T object) {
         return objectList.stream().anyMatch(o -> o.equals(object));
     }
