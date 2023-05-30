@@ -50,7 +50,7 @@ public class UserDatabase {
         try (Scanner scanner = new Scanner(file)) {
             while (scanner.hasNextLine()) {
                 String[] fields = scanner.nextLine().split(",");
-                Worker newWorker = new Worker(fields[0], fields[1], fields[2], fields[3]);
+                Worker newWorker = new Worker(Integer.parseInt(fields[0]), fields[1], fields[2], fields[3]);
                 if (!existsUser(newWorker)) {
                     users.add(newWorker);
                 }
@@ -59,11 +59,10 @@ public class UserDatabase {
             throw new RuntimeException(e);
         }
     }
-
     private void writeUsersToFile() {
         try (FileWriter writer = new FileWriter(filename)) {
             for (Worker user : users) {
-                String line = String.format("%s,%s,%s,%s\n", user.getIdCard(), user.getName(), user.getUserType(), user.getPassword());
+                String line = String.format("%d,%s,%s,%s\n", user.getIdCard(), user.getName(), user.getUserType(), user.getPassword());
                 writer.write(line);
             }
         } catch (IOException e) {
@@ -78,7 +77,7 @@ public class UserDatabase {
 
     private boolean existsUser(Worker user) {
         for (Worker existingUser : users) {
-            if (existingUser.getIdCard().equals(user.getIdCard()) || existingUser.getName().equals(user.getName())) {
+            if (existingUser.getIdCard() == user.getIdCard() || existingUser.getName().equals(user.getName())) {
                 return true;
             }
         }

@@ -1,7 +1,9 @@
 package data;
 
 import java.io.*;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.function.Function;
 
@@ -23,6 +25,19 @@ public class Database<T> {
         parameters.addAll(Arrays.asList(fields));
 
         return parameters;
+    }
+    public List<Field> getClassParameters() {
+        List<Field> parameters = new ArrayList<>();
+        Field[] fields = clazz.getDeclaredFields();
+        Field[] fieldsSuper = clazz.getSuperclass().getDeclaredFields();
+
+        parameters.addAll(Arrays.asList(fieldsSuper));
+        parameters.addAll(Arrays.asList(fields));
+
+        return parameters;
+    }
+    public List<T> getObjects() {
+        return objects;
     }
     public List<Object> getObjectAttributes(T object) {
         Class<?> clazz = object.getClass();
@@ -49,38 +64,71 @@ public class Database<T> {
 
         return attributeValues;
     }
+    public static <T> T createObject(Class<T> clazz, List<Object> attributeValues) {
+        try {
+            Constructor<T> constructor = clazz.getDeclaredConstructor();
+            constructor.setAccessible(true);
+            T object = constructor.newInstance();
 
-    public List<T> getObjects() {
-        return objects;
-    }
-    public void addUser(T object) {
+            Field[] fields = clazz.getDeclaredFields();
+            Field[] fieldsSuper = clazz.getSuperclass().getDeclaredFields();
 
-        if (existsObject(object)) {
-            Class<?> objectClass = object.getClass();
-            System.out.println("ERROR!!!");
-            System.out.printf(objectClass.getName()+" ya existe en el archivo: \""+filename+"\"\n. No se guardarán los datos.");
-        } else {
-            objects.add(object);
-            //updateFile();
+            if (fields.length + fieldsSuper.length != attributeValues.size()) {
+                throw new IllegalArgumentException("Number of attributes does not match the number of values.");
+            }
+            for (int i = 0; i < fieldsSuper.length; i++) {
+                Field field = fieldsSuper[i];
+                field.setAccessible(true);
+                field.set(object, attributeValues.get(i));
+            }
+            for (int i = 0; i < fields.length; i++) {
+                Field field = fields[i];
+                field.setAccessible(true);
+                field.set(object, attributeValues.get(fieldsSuper.length + i ));
+            }
+
+            return object;
+        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | java.lang.reflect.InvocationTargetException e) {
+            throw new RuntimeException("Error creating object of class " + clazz.getSimpleName(), e);
         }
     }
-    private void readObjectFromFile( Function<String[], Object> objectCreator) {
+    public Object parseAttributeValue(String value) {
+        List<Field> parameters = getClassParameters();
+
+        try {
+            return Integer.parseInt(value);
+        } catch (NumberFormatException e) {
+            // Si el valor no es un entero, devolverlo como una cadena
+            return value;
+        }
+    }
+    public void readObjectFromFile( ) {
         File file = new File(filename);
         try {
             if (!file.exists()) {
                 file.createNewFile();
                 System.out.println("Se ha creado un nuevo archivo: " + file.getName());
             }
-
-            try (Scanner scanner = new Scanner(file)) {
-                while (scanner.hasNextLine()) {
-                    String[] fields = scanner.nextLine().split(",");
-                    Object newObj = objectCreator.apply(fields);
-                    objects.add((T) newObj);
-                }
-            }
         } catch (IOException e) {
             throw new RuntimeException("Error al acceder al archivo: " + file.getName(), e);
+        }
+
+        try (Scanner scanner = new Scanner(file)) {
+
+            while (scanner.hasNextLine()) {
+                String[] fields = scanner.nextLine().split(",");
+                List<Object> attributeValues = new ArrayList<>();
+
+                for (int i = 0; i < fields.length; i++) {
+                    attributeValues.add(parseAttributeValue(fields[i]));
+                    System.out.println(attributeValues.get(i));
+                }
+
+                T newObj = createObject(clazz, attributeValues);
+                objects.add(newObj);
+            }
+        }catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 

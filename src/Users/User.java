@@ -1,18 +1,18 @@
 package Users;
 
 public class User {
-    private String idCard;
+    private int idCard;
     private String name;
     private String userType;
 
-    public User(String idCard, String name, String userType) {
+    public User(int idCard, String name, String userType) {
         this.idCard = idCard;
         this.name = name;
         this.userType = userType;
     }
-
+    public User(){}
     // getters
-    public String getIdCard() {
+    public int getIdCard() {
         return idCard;
     }
 
