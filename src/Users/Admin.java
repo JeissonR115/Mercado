@@ -1,14 +1,14 @@
 package Users;
 
-public class Worker extends User {
+public class Admin extends User {
     private String password ;
     //private double sueldo;
-    public Worker(int idCard, String name, String userType, String password){
+    public Admin(int idCard, String name, String userType, String password){
         super(idCard,name,userType);
         this.password = password;
     }
 
-    public Worker(){
+    public Admin(){
     }
     public String getPassword() {
         return password;

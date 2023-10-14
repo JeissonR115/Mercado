@@ -11,6 +11,7 @@ public class UIShoppingCart {
     }
     
     public void mainMenu() {
+        System.out.println("Bienvenido/a al carrito de compras.");
         List<String> options = Arrays.asList(
                 "Agregar un artículo",
                 "Eliminar un artículo",
@@ -20,7 +21,7 @@ public class UIShoppingCart {
         List<Runnable> actions = Arrays.asList(
                 this::addItem,
                 this::removeItem,
-                this::show
+                () -> cart.showCart()
         );
         runMenuWithOptions(options, actions,"<-- Atras");
     }
@@ -36,8 +37,5 @@ public class UIShoppingCart {
         String itemToRemove = sc.nextLine();
         cart.removeItem(itemToRemove);
         System.out.println("Artículo eliminado del carrito.");
-    }
-    private void show(){
-        cart.showCart();
     }
 }

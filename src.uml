@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>JAVA</ID>
+  <OriginalElement>/mnt/Disk/Documents/development/uninphau/dev/Mercado/src</OriginalElement>
+  <nodes>
+    <node x="-288.0" y="517.0">Users.UserDatabase</node>
+    <node x="-43.99999999999994" y="574.5">other.Login</node>
+    <node x="-237.16304347826082" y="297.20684736091295">Users.Worker</node>
+    <node x="530.7817403708988" y="897.5">Main</node>
+    <node x="44.50000000000006" y="840.0">ui.UIMenu</node>
+    <node x="1002.2025677603424" y="56.0">data.Database</node>
+    <node x="280.0" y="551.5">ui.UIShoppingCart</node>
+    <node x="-207.16304347826082" y="47.5">Users.User</node>
+    <node x="217.76976214104081" y="223.66476462196863">ShoppingCart.ShoppingCart</node>
+    <node x="718.7025677603424" y="433.694721825963">Products.Warehouse</node>
+    <node x="713.2025677603424" y="56.0">Products.Product</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="ui.UIMenu" target="ui.UIShoppingCart" relationship="CREATE">
+      <point x="0.0" y="-100.5" />
+      <point x="269.5" y="814.0" />
+      <point x="402.5" y="814.0" />
+      <point x="0.0" y="101.0" />
+    </edge>
+    <edge source="ui.UIShoppingCart" target="ShoppingCart.ShoppingCart" relationship="TO_ONE">
+      <point x="0.0" y="-101.0" />
+      <point x="402.5" y="496.0" />
+      <point x="367.0197621410408" y="496.0" />
+      <point x="49.75" y="89.5" />
+    </edge>
+    <edge source="other.Login" target="Users.Worker" relationship="TO_ONE">
+      <point x="0.0" y="-78.0" />
+      <point x="107.50000000000006" y="496.0" />
+      <point x="-43.66304347826082" y="496.0" />
+      <point x="64.5" y="66.5" />
+    </edge>
+    <edge source="ui.UIMenu" target="ShoppingCart.ShoppingCart" relationship="CREATE">
+      <point x="0.0" y="-100.5" />
+      <point x="269.50000000000006" y="496.0" />
+      <point x="267.5197621410408" y="496.0" />
+      <point x="-49.75" y="89.5" />
+    </edge>
+    <edge source="Users.UserDatabase" target="Users.Worker" relationship="CREATE">
+      <point x="-56.0" y="-135.5" />
+      <point x="-232.0" y="486.0" />
+      <point x="-172.66304347826082" y="486.0" />
+      <point x="-64.5" y="66.5" />
+    </edge>
+    <edge source="Users.Worker" target="Users.User" relationship="GENERALIZATION">
+      <point x="0.0" y="-66.5" />
+      <point x="0.0" y="112.5" />
+    </edge>
+    <edge source="Products.Warehouse" target="Products.Product" relationship="TO_MANY">
+      <point x="0.0" y="-78.0" />
+      <point x="0.0" y="147.0" />
+    </edge>
+    <edge source="Users.UserDatabase" target="Users.Worker" relationship="TO_MANY">
+      <point x="56.0" y="-135.5" />
+      <point x="-120.0" y="496.0" />
+      <point x="-43.66304347826082" y="496.0" />
+      <point x="64.5" y="66.5" />
+    </edge>
+    <edge source="ui.UIMenu" target="Users.UserDatabase" relationship="CREATE">
+      <point x="0.0" y="-100.5" />
+      <point x="269.5" y="814.0" />
+      <point x="-176.0" y="814.0" />
+      <point x="0.0" y="135.5" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic" zoom="0.5935647756138865" showDependencies="true" x="444.5763195435094" y="603.1847360912983" />
+  <SelectedNodes />
+  <Categories>
+    <Category>Constructors</Category>
+    <Category>Fields</Category>
+    <Category>Methods</Category>
+  </Categories>
+  <SCOPE>All</SCOPE>
+  <VISIBILITY>private</VISIBILITY>
+</Diagram>
+
